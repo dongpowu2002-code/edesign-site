@@ -3,71 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eDesign Labs | 任务记录仪 v6.3</title>
+    <title>eDesign Labs | 任务记录仪 v6.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .user-active { border-color: #38bdf8; background-color: #0c4a6e; color: white; }
+        .user-active { border-color: #38bdf8; background-color: #0c4a6e; color: white; box-shadow: 0 0 15px rgba(56,189,248,0.3); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .syncing { animation: pulse 1s infinite; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center py-6 px-4">
+<body class="bg-[#0f172a] text-slate-100 min-h-screen flex flex-col items-center py-6 px-4">
 
-    <div class="max-w-md w-full space-y-6">
-        <div class="flex justify-between items-center px-3 py-2 bg-slate-800 rounded-xl border border-slate-700">
+    <div class="max-w-md w-full space-y-5">
+        <div id="status-bar" class="flex justify-between items-center px-4 py-2.5 bg-slate-800/80 rounded-2xl border border-slate-700 shadow-lg">
             <div class="flex items-center gap-2">
                 <div id="sync-icon" class="w-2 h-2 rounded-full bg-slate-500"></div>
-                <span id="sync-text" class="text-[10px] font-mono text-slate-400">正在检查云端...</span>
+                <span id="sync-text" class="text-[10px] font-mono text-slate-400 uppercase tracking-tighter">系统准备中</span>
             </div>
-            <button onclick="loadFromCloud()" class="text-[9px] bg-slate-700 px-2 py-1 rounded text-sky-400 font-bold uppercase">手动刷新</button>
+            <button onclick="loadFromCloud()" class="text-[9px] font-bold text-sky-400 bg-sky-400/10 px-2.5 py-1 rounded-lg">手动同步数据</button>
         </div>
         
         <div class="grid grid-cols-2 gap-3">
-            <button id="btn-WDP" onclick="setUser('WDP')" class="bg-slate-800 border-2 border-slate-700 py-3 rounded-xl transition-all font-bold tracking-widest">WDP</button>
-            <button id="btn-YAJ" onclick="setUser('YAJ')" class="bg-slate-800 border-2 border-slate-700 py-3 rounded-xl transition-all font-bold tracking-widest">YAJ</button>
+            <button id="btn-WDP" onclick="setUser('WDP')" class="bg-slate-800/50 border border-slate-700 py-3.5 rounded-2xl transition-all font-bold tracking-widest text-sm">WDP</button>
+            <button id="btn-YAJ" onclick="setUser('YAJ')" class="bg-slate-800/50 border border-slate-700 py-3.5 rounded-2xl transition-all font-bold tracking-widest text-sm">YAJ</button>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <div class="bg-slate-800 p-5 rounded-2xl text-center border border-slate-700 shadow-xl">
-                <div class="text-4xl font-black text-red-500 mb-1" id="star-count">0</div>
-                <div class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Stars ⭐</div>
+            <div class="bg-slate-800 p-5 rounded-3xl border border-slate-700 shadow-xl text-center">
+                <div class="text-5xl font-black text-red-500 mb-1" id="star-count">0</div>
+                <div class="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">Stars ⭐</div>
             </div>
-            <div class="bg-slate-800 p-5 rounded-2xl text-center border border-slate-700 shadow-xl">
-                <div class="text-4xl font-black text-orange-500 mb-1" id="bomb-count">0</div>
-                <div class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Bombs 💣</div>
+            <div class="bg-slate-800 p-5 rounded-3xl border border-slate-700 shadow-xl text-center">
+                <div class="text-5xl font-black text-orange-500 mb-1" id="bomb-count">0</div>
+                <div class="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">Bombs 💣</div>
             </div>
         </div>
 
-        <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-2xl opacity-40 pointer-events-none transition-all" id="control-panel">
+        <div class="bg-slate-800 p-6 rounded-[2rem] border border-slate-700 shadow-2xl opacity-40 pointer-events-none transition-all duration-500" id="control-panel">
             <div class="space-y-4">
                 <div class="flex gap-2">
-                    <input type="number" id="input-qty" value="1" min="1" class="w-20 bg-slate-900 border border-slate-700 rounded-xl py-3 text-center text-sky-400 font-bold outline-none">
-                    <input type="text" id="input-remark" placeholder="备注..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-sm outline-none">
+                    <input type="number" id="input-qty" value="1" min="1" class="w-20 bg-slate-900 border border-slate-700 rounded-xl py-3 text-center text-sky-400 font-bold outline-none focus:border-sky-500">
+                    <input type="text" id="input-remark" placeholder="备注理由..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-sm outline-none focus:border-sky-500">
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="change('star', -1)" class="w-14 bg-slate-700 text-red-500 py-4 rounded-xl font-black border border-red-900/20">-</button>
-                    <button onclick="change('star', 1)" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-red-900/40">增加红星 ⭐</button>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="change('bomb', -1)" class="w-14 bg-slate-700 text-orange-500 py-4 rounded-xl font-black border border-orange-900/20">-</button>
-                    <button onclick="change('bomb', 1)" class="flex-1 bg-orange-600 hover:bg-orange-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-orange-900/40">增加炸弹 💣</button>
+                <div class="grid grid-cols-1 gap-3">
+                    <div class="flex gap-2">
+                        <button onclick="change('star', -1)" class="w-14 bg-slate-700/50 text-red-500 py-4 rounded-xl font-black border border-red-900/20 active:bg-red-900/20">-</button>
+                        <button onclick="change('star', 1)" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-red-900/30 active:scale-95 transition">增加红星 ⭐</button>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="change('bomb', -1)" class="w-14 bg-slate-700/50 text-orange-500 py-4 rounded-xl font-black border border-orange-900/20 active:bg-orange-900/20">-</button>
+                        <button onclick="change('bomb', 1)" class="flex-1 bg-orange-600 hover:bg-orange-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-orange-900/30 active:scale-95 transition">增加炸弹 💣</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-slate-800 rounded-2xl p-4 h-60 border border-slate-700 flex flex-col">
-            <div id="log-container" class="overflow-y-auto space-y-2 flex-1 text-[11px] font-mono"></div>
+        <div class="bg-slate-800/50 rounded-2xl p-4 h-52 border border-slate-700 flex flex-col">
+            <div id="log-container" class="overflow-y-auto space-y-2 flex-1 text-[11px] font-mono scrollbar-hide"></div>
         </div>
     </div>
 
     <script>
-        /** 重要：请将下方修改为你专属的名字，防止和别人数据混淆 **/
-        const MY_PRIVATE_KEY = "edesign_labs_personal_777"; 
+        // 【关键】请修改下方为你专属的、长一点的暗号，防止冲突
+        const MY_PRIVATE_KEY = "edesign_labs_personal_v64_unique"; 
         const API_URL = `https://kvdb.io/6EExRsc8Q8gR9Gv1nS9T6q/${MY_PRIVATE_KEY}`;
 
         let counts = { star: 0, bomb: 0 };
         let logs = [];
         let currentUser = null;
 
-        // 加载顺序：先本地，再补云端
+        // 启动逻辑：先读本地（秒开），再同步云端（静默更新）
         window.onload = () => {
             const local = JSON.parse(localStorage.getItem(MY_PRIVATE_KEY));
             if (local) {
@@ -75,14 +79,21 @@
                 logs = local.logs || logs;
                 updateUI();
                 renderLogs();
+                setSyncStatus('已载入本地', 'yellow');
             }
             loadFromCloud();
         };
 
         async function loadFromCloud() {
-            setSyncStatus('正在同步...', 'blue');
+            setSyncStatus('同步中...', 'blue', true);
             try {
-                const res = await fetch(API_URL);
+                // 使用带超时的 fetch 防止卡死
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
+                
+                const res = await fetch(API_URL, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.counts) {
@@ -91,29 +102,31 @@
                         saveToLocal();
                         updateUI();
                         renderLogs();
-                        setSyncStatus('云端已同步', 'green');
+                        setSyncStatus('云端同步完成', 'green');
                         return;
                     }
                 }
-                setSyncStatus('云端为空或连接中', 'orange');
+                setSyncStatus('云端暂无数据', 'orange');
             } catch (e) {
-                setSyncStatus('本地模式', 'orange');
+                setSyncStatus('同步失败/本地模式', 'orange');
             }
         }
 
         async function saveToCloud() {
-            setSyncStatus('正在上传...', 'blue');
+            setSyncStatus('上传中...', 'blue', true);
             try {
-                // 关键点：必须添加 headers，否则 API 可能无法识别数据格式
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ counts, logs })
+                    body: JSON.stringify({ counts, logs, timestamp: Date.now() })
                 });
-                if (res.ok) setSyncStatus('云端已保存', 'green');
-                else throw new Error();
+                if (res.ok) {
+                    setSyncStatus('同步已保存', 'green');
+                } else {
+                    throw new Error();
+                }
             } catch (e) {
-                setSyncStatus('上传失败', 'red');
+                setSyncStatus('上传失败(已存本地)', 'red');
             }
         }
 
@@ -121,11 +134,12 @@
             localStorage.setItem(MY_PRIVATE_KEY, JSON.stringify({ counts, logs }));
         }
 
-        function setSyncStatus(msg, color) {
+        function setSyncStatus(msg, color, isSyncing = false) {
             const dot = document.getElementById('sync-icon');
             const text = document.getElementById('sync-text');
             text.innerText = msg;
-            const colors = { green: 'bg-green-500', blue: 'bg-sky-500', orange: 'bg-orange-500', red: 'bg-red-500' };
+            text.className = `text-[10px] font-mono ${isSyncing ? 'syncing' : ''} text-slate-400`;
+            const colors = { green: 'bg-green-500', blue: 'bg-sky-500', orange: 'bg-orange-500', yellow: 'bg-yellow-500', red: 'bg-red-500' };
             dot.className = `w-2 h-2 rounded-full ${colors[color]}`;
         }
 
@@ -146,20 +160,23 @@
 
             counts[type] += delta;
             
-            const logEntry = `<div class="bg-slate-900/50 p-2 rounded border-l-2 ${dir > 0 ? 'border-sky-500' : 'border-slate-500'}">
-                <div class="flex justify-between items-center">
-                    <span>${dir > 0 ? '＋' : '－'} ${type === 'star' ? '⭐' : '💣'} ${qty}</span>
-                    <span class="text-slate-500 text-[9px] uppercase">${currentUser} | ${new Date().toLocaleTimeString()}</span>
+            const logEntry = `<div class="bg-slate-900/50 p-2 rounded border-l-2 ${dir > 0 ? 'border-sky-500' : 'border-slate-500'} flex justify-between items-center">
+                <div>
+                    <span class="text-slate-200">${dir > 0 ? '＋' : '－'} ${type === 'star' ? '⭐' : '💣'} ${qty}</span>
+                    <span class="text-[8px] text-slate-500 block">${currentUser} | ${new Date().toLocaleTimeString()}</span>
                 </div>
+                <span class="text-slate-500 italic text-[9px]">"${remark}"</span>
             </div>`;
             
             logs.unshift(logEntry);
-            if (logs.length > 30) logs.pop();
+            if (logs.length > 25) logs.pop();
 
             updateUI();
             renderLogs();
             saveToLocal();
             await saveToCloud();
+            document.getElementById('input-remark').value = '';
+            document.getElementById('input-qty').value = '1';
         }
 
         function updateUI() {
