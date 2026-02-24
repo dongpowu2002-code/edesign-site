@@ -3,100 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eDesign Labs | 任务记录仪 v6.2</title>
+    <title>eDesign Labs | 任务记录仪 v6.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .user-active { border-color: #38bdf8; background-color: #0c4a6e; color: white; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
+        .user-active { border-color: #38bdf8; background-color: #0c4a6e; color: white; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center py-6 px-4">
 
     <div class="max-w-md w-full space-y-6">
-        <div class="flex justify-between items-center px-3 py-2 bg-slate-800/80 rounded-xl border border-slate-700">
+        <div class="flex justify-between items-center px-3 py-2 bg-slate-800 rounded-xl border border-slate-700">
             <div class="flex items-center gap-2">
-                <div id="sync-icon" class="w-2 h-2 rounded-full bg-yellow-500"></div>
-                <span id="sync-text" class="text-[10px] font-mono text-slate-400 uppercase">正在初始化...</span>
+                <div id="sync-icon" class="w-2 h-2 rounded-full bg-slate-500"></div>
+                <span id="sync-text" class="text-[10px] font-mono text-slate-400">正在检查云端...</span>
             </div>
-            <span id="last-update" class="text-[9px] text-slate-500 font-mono"></span>
+            <button onclick="loadFromCloud()" class="text-[9px] bg-slate-700 px-2 py-1 rounded text-sky-400 font-bold uppercase">手动刷新</button>
         </div>
         
         <div class="grid grid-cols-2 gap-3">
-            <button id="btn-WDP" onclick="setUser('WDP')" class="bg-slate-800 border-2 border-slate-700 py-3 rounded-xl transition-all font-bold tracking-widest hover:border-sky-500">WDP</button>
-            <button id="btn-YAJ" onclick="setUser('YAJ')" class="bg-slate-800 border-2 border-slate-700 py-3 rounded-xl transition-all font-bold tracking-widest hover:border-sky-500">YAJ</button>
+            <button id="btn-WDP" onclick="setUser('WDP')" class="bg-slate-800 border-2 border-slate-700 py-3 rounded-xl transition-all font-bold tracking-widest">WDP</button>
+            <button id="btn-YAJ" onclick="setUser('YAJ')" class="bg-slate-800 border-2 border-slate-700 py-3 rounded-xl transition-all font-bold tracking-widest">YAJ</button>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <div class="bg-slate-800 p-5 rounded-2xl text-center border border-slate-700 shadow-2xl">
+            <div class="bg-slate-800 p-5 rounded-2xl text-center border border-slate-700 shadow-xl">
                 <div class="text-4xl font-black text-red-500 mb-1" id="star-count">0</div>
                 <div class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Stars ⭐</div>
             </div>
-            <div class="bg-slate-800 p-5 rounded-2xl text-center border border-slate-700 shadow-2xl">
+            <div class="bg-slate-800 p-5 rounded-2xl text-center border border-slate-700 shadow-xl">
                 <div class="text-4xl font-black text-orange-500 mb-1" id="bomb-count">0</div>
                 <div class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Bombs 💣</div>
             </div>
         </div>
 
-        <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl opacity-40 pointer-events-none transition-all duration-500" id="control-panel">
-            <div class="space-y-5">
-                <div class="grid grid-cols-3 gap-3">
-                    <div class="col-span-1">
-                        <label class="text-[10px] text-slate-500 block mb-1 px-1">数量</label>
-                        <input type="number" id="input-qty" value="1" min="1" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 text-center text-sky-400 font-bold outline-none focus:border-sky-500">
-                    </div>
-                    <div class="col-span-2">
-                        <label class="text-[10px] text-slate-500 block mb-1 px-1">备注/理由</label>
-                        <input type="text" id="input-remark" placeholder="可选..." class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-sm outline-none focus:border-sky-500">
-                    </div>
+        <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-2xl opacity-40 pointer-events-none transition-all" id="control-panel">
+            <div class="space-y-4">
+                <div class="flex gap-2">
+                    <input type="number" id="input-qty" value="1" min="1" class="w-20 bg-slate-900 border border-slate-700 rounded-xl py-3 text-center text-sky-400 font-bold outline-none">
+                    <input type="text" id="input-remark" placeholder="备注..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-sm outline-none">
                 </div>
-
-                <div class="flex gap-3">
-                    <button onclick="change('star', -1)" class="w-16 bg-slate-700 hover:bg-red-900/40 text-red-500 py-4 rounded-xl font-black text-xl transition-colors border border-red-900/20">-</button>
-                    <button onclick="change('star', 1)" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-red-900/40 transition-transform active:scale-95 text-sm">增加红星 ⭐</button>
+                <div class="flex gap-2">
+                    <button onclick="change('star', -1)" class="w-14 bg-slate-700 text-red-500 py-4 rounded-xl font-black border border-red-900/20">-</button>
+                    <button onclick="change('star', 1)" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-red-900/40">增加红星 ⭐</button>
                 </div>
-
-                <div class="flex gap-3">
-                    <button onclick="change('bomb', -1)" class="w-16 bg-slate-700 hover:bg-orange-900/40 text-orange-500 py-4 rounded-xl font-black text-xl transition-colors border border-orange-900/20">-</button>
-                    <button onclick="change('bomb', 1)" class="flex-1 bg-orange-600 hover:bg-orange-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-orange-900/40 transition-transform active:scale-95 text-sm">部署炸弹 💣</button>
+                <div class="flex gap-2">
+                    <button onclick="change('bomb', -1)" class="w-14 bg-slate-700 text-orange-500 py-4 rounded-xl font-black border border-orange-900/20">-</button>
+                    <button onclick="change('bomb', 1)" class="flex-1 bg-orange-600 hover:bg-orange-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-orange-900/40">增加炸弹 💣</button>
                 </div>
             </div>
         </div>
 
-        <div class="bg-slate-800 rounded-2xl p-4 h-64 border border-slate-700 flex flex-col">
-            <div class="flex justify-between items-center mb-3">
-                <span class="text-[10px] font-mono text-slate-500 uppercase tracking-tighter">Event Logs</span>
-                <button onclick="clearData()" class="text-[9px] text-red-900 hover:text-red-600 font-bold uppercase">Reset System</button>
-            </div>
-            <div id="log-container" class="overflow-y-auto space-y-2 flex-1 scrollbar-hide"></div>
+        <div class="bg-slate-800 rounded-2xl p-4 h-60 border border-slate-700 flex flex-col">
+            <div id="log-container" class="overflow-y-auto space-y-2 flex-1 text-[11px] font-mono"></div>
         </div>
     </div>
 
     <script>
-        // 为了防止数据冲突，建议修改这个 Key 名字（比如加你的名字缩写）
-        const STORAGE_KEY = "edesign_labs_v62_pro"; 
-        const API_URL = `https://kvdb.io/6EExRsc8Q8gR9Gv1nS9T6q/${STORAGE_KEY}`;
+        /** 重要：请将下方修改为你专属的名字，防止和别人数据混淆 **/
+        const MY_PRIVATE_KEY = "edesign_labs_personal_777"; 
+        const API_URL = `https://kvdb.io/6EExRsc8Q8gR9Gv1nS9T6q/${MY_PRIVATE_KEY}`;
 
         let counts = { star: 0, bomb: 0 };
         let logs = [];
         let currentUser = null;
 
-        // 1. 初始化：加载顺序非常重要
-        window.onload = async () => {
-            // 第一步：立刻从本地读，保证刷新不显示 0
-            const localData = localStorage.getItem(STORAGE_KEY);
-            if (localData) {
-                const parsed = JSON.parse(localData);
-                counts = parsed.counts || counts;
-                logs = parsed.logs || logs;
+        // 加载顺序：先本地，再补云端
+        window.onload = () => {
+            const local = JSON.parse(localStorage.getItem(MY_PRIVATE_KEY));
+            if (local) {
+                counts = local.counts || counts;
+                logs = local.logs || logs;
                 updateUI();
                 renderLogs();
-                setSyncStatus('Local Loaded', 'yellow');
             }
-            
-            // 第二步：后台去云端拿最新的
-            await loadFromCloud();
+            loadFromCloud();
         };
 
         async function loadFromCloud() {
+            setSyncStatus('正在同步...', 'blue');
             try {
                 const res = await fetch(API_URL);
                 if (res.ok) {
@@ -107,37 +91,41 @@
                         saveToLocal();
                         updateUI();
                         renderLogs();
-                        setSyncStatus('Cloud Synced', 'green');
-                        document.getElementById('last-update').innerText = `Last Sync: ${new Date().toLocaleTimeString()}`;
+                        setSyncStatus('云端已同步', 'green');
+                        return;
                     }
                 }
+                setSyncStatus('云端为空或连接中', 'orange');
             } catch (e) {
-                setSyncStatus('Offline Mode', 'orange');
+                setSyncStatus('本地模式', 'orange');
             }
         }
 
         async function saveToCloud() {
-            setSyncStatus('Saving...', 'blue');
+            setSyncStatus('正在上传...', 'blue');
             try {
-                await fetch(API_URL, {
+                // 关键点：必须添加 headers，否则 API 可能无法识别数据格式
+                const res = await fetch(API_URL, {
                     method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ counts, logs })
                 });
-                setSyncStatus('Cloud Synced', 'green');
+                if (res.ok) setSyncStatus('云端已保存', 'green');
+                else throw new Error();
             } catch (e) {
-                setSyncStatus('Save to Local Only', 'orange');
+                setSyncStatus('上传失败', 'red');
             }
         }
 
         function saveToLocal() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({ counts, logs }));
+            localStorage.setItem(MY_PRIVATE_KEY, JSON.stringify({ counts, logs }));
         }
 
         function setSyncStatus(msg, color) {
             const dot = document.getElementById('sync-icon');
             const text = document.getElementById('sync-text');
             text.innerText = msg;
-            const colors = { green: 'bg-green-500', blue: 'bg-sky-500', orange: 'bg-orange-500', yellow: 'bg-yellow-500', red: 'bg-red-500' };
+            const colors = { green: 'bg-green-500', blue: 'bg-sky-500', orange: 'bg-orange-500', red: 'bg-red-500' };
             dot.className = `w-2 h-2 rounded-full ${colors[color]}`;
         }
 
@@ -148,36 +136,30 @@
             document.getElementById('control-panel').classList.remove('opacity-40', 'pointer-events-none');
         }
 
-        async function change(type, direction) {
+        async function change(type, dir) {
             if (!currentUser) return;
             const qty = Math.max(1, parseInt(document.getElementById('input-qty').value) || 1);
             const remark = document.getElementById('input-remark').value || '-';
-            const delta = qty * direction;
+            const delta = qty * dir;
 
             if (counts[type] + delta < 0) return alert("数量不足！");
 
             counts[type] += delta;
             
-            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            const entry = `<div class="bg-slate-900/50 p-2 rounded-lg border-l-2 ${direction > 0 ? 'border-sky-500' : 'border-slate-600'} flex justify-between items-center">
-                <div class="flex flex-col">
-                    <span class="text-slate-200">${direction > 0 ? '＋' : '－'} ${type === 'star' ? '⭐' : '💣'} ${qty} <span class="text-slate-500 ml-1 text-[9px]">"${remark}"</span></span>
-                    <span class="text-[8px] text-slate-500">${time} BY ${currentUser}</span>
+            const logEntry = `<div class="bg-slate-900/50 p-2 rounded border-l-2 ${dir > 0 ? 'border-sky-500' : 'border-slate-500'}">
+                <div class="flex justify-between items-center">
+                    <span>${dir > 0 ? '＋' : '－'} ${type === 'star' ? '⭐' : '💣'} ${qty}</span>
+                    <span class="text-slate-500 text-[9px] uppercase">${currentUser} | ${new Date().toLocaleTimeString()}</span>
                 </div>
-                <div class="font-mono font-bold text-slate-400">#${counts[type]}</div>
             </div>`;
             
-            logs.unshift(entry);
-            if (logs.length > 40) logs.pop();
+            logs.unshift(logEntry);
+            if (logs.length > 30) logs.pop();
 
             updateUI();
             renderLogs();
-            saveToLocal(); // 瞬时保存到本地
-            await saveToCloud(); // 异步推送到云端
-            
-            // 重置输入
-            document.getElementById('input-remark').value = '';
-            document.getElementById('input-qty').value = '1';
+            saveToLocal();
+            await saveToCloud();
         }
 
         function updateUI() {
@@ -187,13 +169,6 @@
 
         function renderLogs() {
             document.getElementById('log-container').innerHTML = logs.join('');
-        }
-
-        function clearData() {
-            if(confirm("将清除云端和本地所有数据，确定吗？")) {
-                localStorage.removeItem(STORAGE_KEY);
-                location.reload();
-            }
         }
     </script>
 </body>
