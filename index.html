@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eDesign Labs | 审计记录仪</title>
+    <title>eDesign Labs | 任务记录仪 v4.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .user-active { border-color: #38bdf8; background-color: #0c4a6e; color: white; transform: scale(1.05); }
@@ -14,12 +14,15 @@
     <div class="max-w-md w-full space-y-8">
         
         <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-lg text-center">
-            <h3 class="text-xs font-mono text-slate-500 uppercase tracking-widest mb-3">Step 1: 验证操作人</h3>
+            <h3 class="text-xs font-mono text-slate-500 uppercase tracking-widest mb-3">操作员验证</h3>
             <div class="flex gap-4">
-                <button id="btn-WDP" onclick="setUser('WDP')" class="flex-1 border-2 border-slate-700 py-3 rounded-xl transition-all duration-200 hover:border-sky-500 font-bold">WDP</button>
-                <button id="btn-YAJ" onclick="setUser('YAJ')" class="flex-1 border-2 border-slate-700 py-3 rounded-xl transition-all duration-200 hover:border-sky-500 font-bold">YAJ</button>
+                <button id="btn-WDP" onclick="setUser('WDP')" class="flex-1 border-2 border-slate-700 py-3 rounded-xl transition-all font-bold">WDP</button>
+                <button id="btn-YAJ" onclick="setUser('YAJ')" class="flex-1 border-2 border-slate-700 py-3 rounded-xl transition-all font-bold">YAJ</button>
             </div>
-            <p id="user-hint" class="text-xs text-orange-400 mt-3 italic">请先点击上方按钮选择操作员</p>
+            <div class="flex justify-between items-center mt-3">
+                <p id="user-hint" class="text-xs text-orange-400 italic">请选择操作员以解锁控制面板</p>
+                <button onclick="logout()" id="logout-btn" class="hidden text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-400 hover:text-white">切换用户</button>
+            </div>
         </div>
 
         <div class="grid grid-cols-2 gap-6 opacity-50 pointer-events-none transition-opacity duration-300" id="control-panel">
@@ -43,67 +46,93 @@
         </div>
 
         <div class="bg-slate-800 rounded-2xl p-6 h-64 flex flex-col border border-slate-700">
-            <h3 class="text-slate-500 text-[10px] font-mono uppercase tracking-[0.2em] mb-4">Activity Log</h3>
-            <div id="log-container" class="overflow-y-auto space-y-2 flex-1 text-xs font-mono">
-                <div class="text-slate-600">>> 系统就绪，等待身份验证...</div>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-slate-500 text-[10px] font-mono uppercase tracking-[0.2em]">Activity Log</h3>
+                <button onclick="clearAll()" class="text-[10px] text-red-900 hover:text-red-500 transition">清除所有数据</button>
             </div>
+            <div id="log-container" class="overflow-y-auto space-y-2 flex-1 text-xs font-mono"></div>
         </div>
     </div>
 
     <script>
-        let counts = { star: 0, bomb: 0 };
+        // 初始化：从本地存储读取数据，如果没有则设为默认值
+        let counts = JSON.parse(localStorage.getItem('edesign_counts')) || { star: 0, bomb: 0 };
+        let logs = JSON.parse(localStorage.getItem('edesign_logs')) || [];
         let currentUser = null;
 
-        // 设置当前用户
+        // 页面加载时恢复 UI
+        window.onload = () => {
+            updateUI();
+            renderLogs();
+        };
+
+        function updateUI() {
+            document.getElementById('star-count').innerText = counts.star;
+            document.getElementById('bomb-count').innerText = counts.bomb;
+        }
+
+        function renderLogs() {
+            const logContainer = document.getElementById('log-container');
+            logContainer.innerHTML = logs.length ? '' : '<div class="text-slate-600">>> 无历史记录</div>';
+            logs.forEach(log => {
+                const logEntry = document.createElement('div');
+                logEntry.className = "border-l-2 border-slate-700 pl-2 py-1 bg-slate-900/20 mb-1";
+                logEntry.innerHTML = log;
+                logContainer.appendChild(logEntry); // 注意：这里为了保持顺序，新记录在存入数组时用 unshift
+            });
+        }
+
         function setUser(name) {
             currentUser = name;
-            
-            // UI 反馈
             document.getElementById('btn-WDP').classList.remove('user-active');
             document.getElementById('btn-YAJ').classList.remove('user-active');
             document.getElementById(`btn-${name}`).classList.add('user-active');
 
-            // 激活下方控制面板
             document.getElementById('control-panel').classList.remove('opacity-50', 'pointer-events-none');
-            document.getElementById('user-hint').innerText = `当前操作员: ${name} (已授权修改)`;
-            document.getElementById('user-hint').classList.replace('text-orange-400', 'text-sky-400');
+            document.getElementById('user-hint').innerText = `当前登录: ${name}`;
+            document.getElementById('user-hint').className = "text-xs text-sky-400 font-bold";
+            document.getElementById('logout-btn').classList.remove('hidden');
         }
 
-        function change(type, delta) {
-            if (!currentUser) return; // 二重保险
-            if (counts[type] === 0 && delta === -1) return;
-
-            counts[type] += delta;
-            document.getElementById(`${type}-count`).innerText = counts[type];
-
-            // 记录日志并包含用户名
-            const logContainer = document.getElementById('log-container');
-            const time = new Date().toLocaleTimeString();
-            const action = delta > 0 ? "增加" : "减少";
-            const icon = type === 'star' ? "⭐" : "💣";
-            
-            const logEntry = document.createElement('div');
-            logEntry.className = "border-l-2 border-slate-600 pl-2 py-1 bg-slate-900/30 mb-1";
-            logEntry.innerHTML = `
-                <span class="text-slate-500">[${time}]</span> 
-                <span class="text-sky-400 font-bold">${currentUser}</span> 
-                <span class="text-slate-300">${action}了 ${icon}</span> 
-                <span class="text-slate-500">| 库: ${counts[type]}</span>`;
-            
-            if (logContainer.children[0]?.innerText.includes('系统就绪')) logContainer.innerHTML = '';
-            logContainer.prepend(logEntry);
-
-            // 【关键】修改完后重置状态，实现“每次按一下用户才可修改”
-            resetLock();
-        }
-
-        function resetLock() {
+        function logout() {
             currentUser = null;
             document.getElementById('btn-WDP').classList.remove('user-active');
             document.getElementById('btn-YAJ').classList.remove('user-active');
             document.getElementById('control-panel').classList.add('opacity-50', 'pointer-events-none');
-            document.getElementById('user-hint').innerText = "操作完成，请重新选择操作员以进行下一次修改";
-            document.getElementById('user-hint').classList.replace('text-sky-400', 'text-orange-400');
+            document.getElementById('user-hint').innerText = "请选择操作员以解锁控制面板";
+            document.getElementById('user-hint').className = "text-xs text-orange-400 italic";
+            document.getElementById('logout-btn').classList.add('hidden');
+        }
+
+        function change(type, delta) {
+            if (!currentUser) return;
+            if (counts[type] === 0 && delta === -1) return;
+
+            counts[type] += delta;
+            
+            // 记录日志
+            const time = new Date().toLocaleTimeString();
+            const action = delta > 0 ? "增加" : "减少";
+            const icon = type === 'star' ? "⭐" : "💣";
+            const logHTML = `<span class="text-slate-500">[${time}]</span> <span class="text-sky-400">${currentUser}</span> ${action}${icon} | 库: ${counts[type]}`;
+            
+            logs.unshift(logHTML); // 新记录插到数组开头
+            if (logs.length > 50) logs.pop(); // 只保留最近50条
+
+            // 保存到本地存储
+            localStorage.setItem('edesign_counts', JSON.stringify(counts));
+            localStorage.setItem('edesign_logs', JSON.stringify(logs));
+
+            updateUI();
+            renderLogs();
+            // 注意：这里删除了之前版本中的 resetLock()，所以用户可以连续操作
+        }
+
+        function clearAll() {
+            if (confirm("确定要清空所有数据吗？此操作不可撤销。")) {
+                localStorage.clear();
+                location.reload();
+            }
         }
     </script>
 </body>
