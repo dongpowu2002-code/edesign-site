@@ -4,19 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eDesign Labs | Embedded & Robotics</title>
-    <style>
-        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { border: 1px solid #1e293b; padding: 2rem; border-radius: 12px; background: #1e293b; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); text-align: center; }
-        h1 { color: #38bdf8; margin-bottom: 0.5rem; }
-        p { color: #94a3b8; }
-        .status { font-size: 0.8rem; color: #10b981; margin-top: 1rem; }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="card">
-        <h1>eDesign Labs</h1>
-        <p>嵌入式开发 | 机器人技术 | 全栈硬件设计</p>
-        <div class="status">● 站点正在建设中 (System Booting...)</div>
+<body class="bg-slate-900 text-slate-100 font-sans">
+    <div class="max-w-4xl mx-auto px-6 py-20">
+        <header class="mb-16">
+            <h1 class="text-4xl font-bold text-sky-400 mb-4">eDesign Labs</h1>
+            <p class="text-xl text-slate-400">探索嵌入式系统与智能硬件的无限可能</p>
+        </header>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="p-6 border border-slate-800 rounded-xl bg-slate-800/50 hover:border-sky-500 transition">
+                <h3 class="text-xl font-semibold mb-2 text-sky-300">STM32 嵌入式开发</h3>
+                <p class="text-slate-400 text-sm">专注于 STM32F407 平台，高性能实时系统设计。</p>
+            </div>
+            <div class="p-6 border border-slate-800 rounded-xl bg-slate-800/50 hover:border-sky-500 transition">
+                <h3 class="text-xl font-semibold mb-2 text-sky-300">机器人技术</h3>
+                <p class="text-slate-400 text-sm">基于 LeArm 6-DOF 机械臂的运动规划与控制。</p>
+            </div>
+        </section>
+
+        <footer class="mt-20 pt-8 border-t border-slate-800 text-slate-500 text-sm">
+            © 2026 eDesign Labs. All Systems Operational.
+        </footer>
     </div>
 </body>
 </html>
