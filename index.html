@@ -3,30 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eDesign Labs | Embedded & Robotics</title>
+    <title>eDesign Labs | 任务记录仪</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans">
-    <div class="max-w-4xl mx-auto px-6 py-20">
-        <header class="mb-16">
-            <h1 class="text-4xl font-bold text-sky-400 mb-4">eDesign Labs</h1>
-            <p class="text-xl text-slate-400">探索嵌入式系统与智能硬件的无限可能</p>
-        </header>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center py-12 px-4">
 
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="p-6 border border-slate-800 rounded-xl bg-slate-800/50 hover:border-sky-500 transition">
-                <h3 class="text-xl font-semibold mb-2 text-sky-300">STM32 嵌入式开发</h3>
-                <p class="text-slate-400 text-sm">专注于 STM32F407 平台，高性能实时系统设计。</p>
+    <div class="max-w-md w-full space-y-8">
+        
+        <div class="grid grid-cols-2 gap-4">
+            <div onclick="addRecord('star')" class="cursor-pointer bg-slate-800 border-2 border-transparent hover:border-red-500 p-6 rounded-2xl text-center transition-all active:scale-95">
+                <div class="text-4xl mb-2">⭐</div>
+                <div class="text-slate-400 text-sm mb-1">红星数量</div>
+                <div id="star-count" class="text-5xl font-bold text-red-500">0</div>
             </div>
-            <div class="p-6 border border-slate-800 rounded-xl bg-slate-800/50 hover:border-sky-500 transition">
-                <h3 class="text-xl font-semibold mb-2 text-sky-300">机器人技术</h3>
-                <p class="text-slate-400 text-sm">基于 LeArm 6-DOF 机械臂的运动规划与控制。</p>
-            </div>
-        </section>
 
-        <footer class="mt-20 pt-8 border-t border-slate-800 text-slate-500 text-sm">
-            © 2026 eDesign Labs. All Systems Operational.
-        </footer>
+            <div onclick="addRecord('bomb')" class="cursor-pointer bg-slate-800 border-2 border-transparent hover:border-orange-500 p-6 rounded-2xl text-center transition-all active:scale-95">
+                <div class="text-4xl mb-2">💣</div>
+                <div class="text-slate-400 text-sm mb-1">炸弹数量</div>
+                <div id="bomb-count" class="text-5xl font-bold text-orange-500">0</div>
+            </div>
+        </div>
+
+        <div class="bg-slate-800 rounded-2xl p-6 h-64 flex flex-col">
+            <h3 class="text-slate-400 text-sm font-semibold mb-4 border-b border-slate-700 pb-2">操作日志 (LOG)</h3>
+            <div id="log-container" class="overflow-y-auto space-y-2 flex-1 text-sm font-mono text-slate-300">
+                <div class="text-slate-500 italic">等待记录输入...</div>
+            </div>
+        </div>
+
     </div>
+
+    <script>
+        // 初始化变量
+        let stars = 0;
+        let bombs = 0;
+
+        function addRecord(type) {
+            const logContainer = document.getElementById('log-container');
+            const now = new Date().toLocaleTimeString();
+            let message = "";
+
+            // 第一步：判断点击类型并更新数字
+            if (type === 'star') {
+                stars++;
+                document.getElementById('star-count').innerText = stars;
+                message = `<span class="text-red-400">[${now}] 增加了一颗红星 ⭐</span>`;
+            } else {
+                bombs++;
+                document.getElementById('bomb-count').innerText = bombs;
+                message = `<span class="text-orange-400">[${now}] 部署了一个炸弹 💣</span>`;
+            }
+
+            // 第二步：更新日志列表
+            // 如果是第一次记录，清空提示语
+            if (stars + bombs === 1) logContainer.innerHTML = '';
+            
+            const newLog = document.createElement('div');
+            newLog.innerHTML = message;
+            // 将最新的记录插入到最前面
+            logContainer.prepend(newLog);
+        }
+    </script>
 </body>
 </html>
