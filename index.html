@@ -3,65 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eDesign Labs | 任务记录仪</title>
+    <title>eDesign Labs | 审计记录仪</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .user-active { border-color: #38bdf8; background-color: #0c4a6e; color: white; transform: scale(1.05); }
+    </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center py-12 px-4">
 
     <div class="max-w-md w-full space-y-8">
         
-        <div class="grid grid-cols-2 gap-4">
-            <div onclick="addRecord('star')" class="cursor-pointer bg-slate-800 border-2 border-transparent hover:border-red-500 p-6 rounded-2xl text-center transition-all active:scale-95">
+        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-lg text-center">
+            <h3 class="text-xs font-mono text-slate-500 uppercase tracking-widest mb-3">Step 1: 验证操作人</h3>
+            <div class="flex gap-4">
+                <button id="btn-WDP" onclick="setUser('WDP')" class="flex-1 border-2 border-slate-700 py-3 rounded-xl transition-all duration-200 hover:border-sky-500 font-bold">WDP</button>
+                <button id="btn-YAJ" onclick="setUser('YAJ')" class="flex-1 border-2 border-slate-700 py-3 rounded-xl transition-all duration-200 hover:border-sky-500 font-bold">YAJ</button>
+            </div>
+            <p id="user-hint" class="text-xs text-orange-400 mt-3 italic">请先点击上方按钮选择操作员</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6 opacity-50 pointer-events-none transition-opacity duration-300" id="control-panel">
+            <div class="bg-slate-800 p-6 rounded-2xl text-center shadow-xl border border-slate-700">
                 <div class="text-4xl mb-2">⭐</div>
-                <div class="text-slate-400 text-sm mb-1">红星数量</div>
-                <div id="star-count" class="text-5xl font-bold text-red-500">0</div>
+                <div id="star-count" class="text-5xl font-bold text-red-500 mb-4">0</div>
+                <div class="flex gap-2">
+                    <button onclick="change('star', -1)" class="flex-1 bg-slate-700 hover:bg-slate-600 py-2 rounded-lg active:scale-90">-</button>
+                    <button onclick="change('star', 1)" class="flex-1 bg-red-600 hover:bg-red-500 py-2 rounded-lg active:scale-90 font-bold">+</button>
+                </div>
             </div>
 
-            <div onclick="addRecord('bomb')" class="cursor-pointer bg-slate-800 border-2 border-transparent hover:border-orange-500 p-6 rounded-2xl text-center transition-all active:scale-95">
+            <div class="bg-slate-800 p-6 rounded-2xl text-center shadow-xl border border-slate-700">
                 <div class="text-4xl mb-2">💣</div>
-                <div class="text-slate-400 text-sm mb-1">炸弹数量</div>
-                <div id="bomb-count" class="text-5xl font-bold text-orange-500">0</div>
+                <div id="bomb-count" class="text-5xl font-bold text-orange-500 mb-4">0</div>
+                <div class="flex gap-2">
+                    <button onclick="change('bomb', -1)" class="flex-1 bg-slate-700 hover:bg-slate-600 py-2 rounded-lg active:scale-90">-</button>
+                    <button onclick="change('bomb', 1)" class="flex-1 bg-orange-600 hover:bg-orange-500 py-2 rounded-lg active:scale-90 font-bold">+</button>
+                </div>
             </div>
         </div>
 
-        <div class="bg-slate-800 rounded-2xl p-6 h-64 flex flex-col">
-            <h3 class="text-slate-400 text-sm font-semibold mb-4 border-b border-slate-700 pb-2">操作日志 (LOG)</h3>
-            <div id="log-container" class="overflow-y-auto space-y-2 flex-1 text-sm font-mono text-slate-300">
-                <div class="text-slate-500 italic">等待记录输入...</div>
+        <div class="bg-slate-800 rounded-2xl p-6 h-64 flex flex-col border border-slate-700">
+            <h3 class="text-slate-500 text-[10px] font-mono uppercase tracking-[0.2em] mb-4">Activity Log</h3>
+            <div id="log-container" class="overflow-y-auto space-y-2 flex-1 text-xs font-mono">
+                <div class="text-slate-600">>> 系统就绪，等待身份验证...</div>
             </div>
         </div>
-
     </div>
 
     <script>
-        // 初始化变量
-        let stars = 0;
-        let bombs = 0;
+        let counts = { star: 0, bomb: 0 };
+        let currentUser = null;
 
-        function addRecord(type) {
-            const logContainer = document.getElementById('log-container');
-            const now = new Date().toLocaleTimeString();
-            let message = "";
-
-            // 第一步：判断点击类型并更新数字
-            if (type === 'star') {
-                stars++;
-                document.getElementById('star-count').innerText = stars;
-                message = `<span class="text-red-400">[${now}] 增加了一颗红星 ⭐</span>`;
-            } else {
-                bombs++;
-                document.getElementById('bomb-count').innerText = bombs;
-                message = `<span class="text-orange-400">[${now}] 部署了一个炸弹 💣</span>`;
-            }
-
-            // 第二步：更新日志列表
-            // 如果是第一次记录，清空提示语
-            if (stars + bombs === 1) logContainer.innerHTML = '';
+        // 设置当前用户
+        function setUser(name) {
+            currentUser = name;
             
-            const newLog = document.createElement('div');
-            newLog.innerHTML = message;
-            // 将最新的记录插入到最前面
-            logContainer.prepend(newLog);
+            // UI 反馈
+            document.getElementById('btn-WDP').classList.remove('user-active');
+            document.getElementById('btn-YAJ').classList.remove('user-active');
+            document.getElementById(`btn-${name}`).classList.add('user-active');
+
+            // 激活下方控制面板
+            document.getElementById('control-panel').classList.remove('opacity-50', 'pointer-events-none');
+            document.getElementById('user-hint').innerText = `当前操作员: ${name} (已授权修改)`;
+            document.getElementById('user-hint').classList.replace('text-orange-400', 'text-sky-400');
+        }
+
+        function change(type, delta) {
+            if (!currentUser) return; // 二重保险
+            if (counts[type] === 0 && delta === -1) return;
+
+            counts[type] += delta;
+            document.getElementById(`${type}-count`).innerText = counts[type];
+
+            // 记录日志并包含用户名
+            const logContainer = document.getElementById('log-container');
+            const time = new Date().toLocaleTimeString();
+            const action = delta > 0 ? "增加" : "减少";
+            const icon = type === 'star' ? "⭐" : "💣";
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = "border-l-2 border-slate-600 pl-2 py-1 bg-slate-900/30 mb-1";
+            logEntry.innerHTML = `
+                <span class="text-slate-500">[${time}]</span> 
+                <span class="text-sky-400 font-bold">${currentUser}</span> 
+                <span class="text-slate-300">${action}了 ${icon}</span> 
+                <span class="text-slate-500">| 库: ${counts[type]}</span>`;
+            
+            if (logContainer.children[0]?.innerText.includes('系统就绪')) logContainer.innerHTML = '';
+            logContainer.prepend(logEntry);
+
+            // 【关键】修改完后重置状态，实现“每次按一下用户才可修改”
+            resetLock();
+        }
+
+        function resetLock() {
+            currentUser = null;
+            document.getElementById('btn-WDP').classList.remove('user-active');
+            document.getElementById('btn-YAJ').classList.remove('user-active');
+            document.getElementById('control-panel').classList.add('opacity-50', 'pointer-events-none');
+            document.getElementById('user-hint').innerText = "操作完成，请重新选择操作员以进行下一次修改";
+            document.getElementById('user-hint').classList.replace('text-sky-400', 'text-orange-400');
         }
     </script>
 </body>
