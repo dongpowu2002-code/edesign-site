@@ -3,68 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eDesign Labs | 任务记录仪 v4.0</title>
+    <title>eDesign Labs | 任务管理系统 v5.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .user-active { border-color: #38bdf8; background-color: #0c4a6e; color: white; transform: scale(1.05); }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center py-12 px-4">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center py-8 px-4">
 
-    <div class="max-w-md w-full space-y-8">
+    <div class="max-w-md w-full space-y-6">
         
-        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-lg text-center">
-            <h3 class="text-xs font-mono text-slate-500 uppercase tracking-widest mb-3">操作员验证</h3>
-            <div class="flex gap-4">
-                <button id="btn-WDP" onclick="setUser('WDP')" class="flex-1 border-2 border-slate-700 py-3 rounded-xl transition-all font-bold">WDP</button>
-                <button id="btn-YAJ" onclick="setUser('YAJ')" class="flex-1 border-2 border-slate-700 py-3 rounded-xl transition-all font-bold">YAJ</button>
-            </div>
-            <div class="flex justify-between items-center mt-3">
-                <p id="user-hint" class="text-xs text-orange-400 italic">请选择操作员以解锁控制面板</p>
-                <button onclick="logout()" id="logout-btn" class="hidden text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-400 hover:text-white">切换用户</button>
+        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-lg">
+            <div class="flex gap-3">
+                <button id="btn-WDP" onclick="setUser('WDP')" class="flex-1 border-2 border-slate-700 py-2 rounded-xl transition-all font-bold">WDP</button>
+                <button id="btn-YAJ" onclick="setUser('YAJ')" class="flex-1 border-2 border-slate-700 py-2 rounded-xl transition-all font-bold">YAJ</button>
+                <button onclick="logout()" id="logout-btn" class="hidden bg-slate-700 px-3 py-2 rounded-xl text-slate-400 hover:text-white text-xs">登出</button>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-6 opacity-50 pointer-events-none transition-opacity duration-300" id="control-panel">
-            <div class="bg-slate-800 p-6 rounded-2xl text-center shadow-xl border border-slate-700">
-                <div class="text-4xl mb-2">⭐</div>
-                <div id="star-count" class="text-5xl font-bold text-red-500 mb-4">0</div>
-                <div class="flex gap-2">
-                    <button onclick="change('star', -1)" class="flex-1 bg-slate-700 hover:bg-slate-600 py-2 rounded-lg active:scale-90">-</button>
-                    <button onclick="change('star', 1)" class="flex-1 bg-red-600 hover:bg-red-500 py-2 rounded-lg active:scale-90 font-bold">+</button>
-                </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-slate-800 p-4 rounded-2xl text-center border border-slate-700">
+                <div class="text-3xl mb-1">⭐</div>
+                <div id="star-count" class="text-4xl font-bold text-red-500">0</div>
             </div>
+            <div class="bg-slate-800 p-4 rounded-2xl text-center border border-slate-700">
+                <div class="text-3xl mb-1">💣</div>
+                <div id="bomb-count" class="text-4xl font-bold text-orange-500">0</div>
+            </div>
+        </div>
 
-            <div class="bg-slate-800 p-6 rounded-2xl text-center shadow-xl border border-slate-700">
-                <div class="text-4xl mb-2">💣</div>
-                <div id="bomb-count" class="text-5xl font-bold text-orange-500 mb-4">0</div>
-                <div class="flex gap-2">
-                    <button onclick="change('bomb', -1)" class="flex-1 bg-slate-700 hover:bg-slate-600 py-2 rounded-lg active:scale-90">-</button>
-                    <button onclick="change('bomb', 1)" class="flex-1 bg-orange-600 hover:bg-orange-500 py-2 rounded-lg active:scale-90 font-bold">+</button>
+        <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl opacity-50 pointer-events-none transition-all" id="control-panel">
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-slate-500 block mb-1 font-mono uppercase">Quantity / 数量</label>
+                    <input type="number" id="input-qty" value="1" min="1" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 focus:border-sky-500 outline-none text-xl font-bold">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-500 block mb-1 font-mono uppercase">Remark / 备注</label>
+                    <input type="text" id="input-remark" placeholder="输入添加理由..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 focus:border-sky-500 outline-none">
+                </div>
+                <div class="flex gap-4 pt-2">
+                    <button onclick="change('star', 1)" class="flex-1 bg-red-600 hover:bg-red-500 py-3 rounded-xl font-bold shadow-lg shadow-red-900/20 active:scale-95 transition">+ ⭐ 红星</button>
+                    <button onclick="change('bomb', 1)" class="flex-1 bg-orange-600 hover:bg-orange-500 py-3 rounded-xl font-bold shadow-lg shadow-orange-900/20 active:scale-95 transition">+ 💣 炸弹</button>
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="change('star', -1)" class="flex-1 border border-red-900/50 text-red-500 py-2 rounded-xl text-xs hover:bg-red-900/20">- 减少红星</button>
+                    <button onclick="change('bomb', -1)" class="flex-1 border border-orange-900/50 text-orange-500 py-2 rounded-xl text-xs hover:bg-orange-900/20">- 减少炸弹</button>
                 </div>
             </div>
         </div>
 
-        <div class="bg-slate-800 rounded-2xl p-6 h-64 flex flex-col border border-slate-700">
+        <div class="bg-slate-800 rounded-2xl p-6 h-80 flex flex-col border border-slate-700">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-slate-500 text-[10px] font-mono uppercase tracking-[0.2em]">Activity Log</h3>
-                <button onclick="clearAll()" class="text-[10px] text-red-900 hover:text-red-500 transition">清除所有数据</button>
+                <h3 class="text-slate-500 text-[10px] font-mono uppercase tracking-[0.2em]">Transaction Log</h3>
+                <button onclick="clearAll()" class="text-[10px] text-red-900 hover:text-red-500">清空数据库</button>
             </div>
-            <div id="log-container" class="overflow-y-auto space-y-2 flex-1 text-xs font-mono"></div>
+            <div id="log-container" class="overflow-y-auto space-y-3 flex-1 text-xs font-mono"></div>
         </div>
     </div>
 
     <script>
-        // 初始化：从本地存储读取数据，如果没有则设为默认值
         let counts = JSON.parse(localStorage.getItem('edesign_counts')) || { star: 0, bomb: 0 };
         let logs = JSON.parse(localStorage.getItem('edesign_logs')) || [];
         let currentUser = null;
 
-        // 页面加载时恢复 UI
-        window.onload = () => {
+        window.onload = () => { updateUI(); renderLogs(); };
+
+        function setUser(name) {
+            currentUser = name;
+            document.querySelectorAll('[id^="btn-"]').forEach(el => el.classList.remove('user-active'));
+            document.getElementById(`btn-${name}`).classList.add('user-active');
+            document.getElementById('control-panel').classList.remove('opacity-50', 'pointer-events-none');
+            document.getElementById('logout-btn').classList.remove('hidden');
+        }
+
+        function logout() {
+            currentUser = null;
+            document.querySelectorAll('[id^="btn-"]').forEach(el => el.classList.remove('user-active'));
+            document.getElementById('control-panel').classList.add('opacity-50', 'pointer-events-none');
+            document.getElementById('logout-btn').classList.add('hidden');
+        }
+
+        function change(type, direction) {
+            if (!currentUser) return;
+            
+            // 获取用户输入的自定义数量
+            const qtyInput = document.getElementById('input-qty');
+            const qty = parseInt(qtyInput.value) || 1;
+            const remark = document.getElementById('input-remark').value || '无备注';
+
+            const totalDelta = qty * direction;
+
+            // 逻辑检查：不能减为负数
+            if (counts[type] + totalDelta < 0) {
+                alert("库存不足，无法扣减！");
+                return;
+            }
+
+            counts[type] += totalDelta;
+            
+            // 记录日志
+            const time = new Date().toLocaleTimeString();
+            const action = direction > 0 ? "新增" : "核减";
+            const icon = type === 'star' ? "⭐" : "💣";
+            
+            const logHTML = `
+                <div class="bg-slate-900/40 p-2 rounded border-l-2 ${direction > 0 ? 'border-sky-500' : 'border-slate-600'}">
+                    <div class="flex justify-between text-slate-500 mb-1">
+                        <span>[${time}] 操作人: <b class="text-sky-400">${currentUser}</b></span>
+                        <span class="font-bold text-slate-300">总计: ${counts[type]}</span>
+                    </div>
+                    <div class="text-slate-200">
+                        ${action} ${icon} x${qty} 
+                        <span class="text-slate-500 ml-2 italic">"${remark}"</span>
+                    </div>
+                </div>`;
+            
+            logs.unshift(logHTML);
+            if (logs.length > 50) logs.pop();
+
+            // 数据持久化
+            localStorage.setItem('edesign_counts', JSON.stringify(counts));
+            localStorage.setItem('edesign_logs', JSON.stringify(logs));
+
+            // 更新 UI 且清空备注栏，数量重置为 1
             updateUI();
             renderLogs();
-        };
+            document.getElementById('input-remark').value = '';
+            document.getElementById('input-qty').value = '1';
+        }
 
         function updateUI() {
             document.getElementById('star-count').innerText = counts.star;
@@ -72,64 +139,11 @@
         }
 
         function renderLogs() {
-            const logContainer = document.getElementById('log-container');
-            logContainer.innerHTML = logs.length ? '' : '<div class="text-slate-600">>> 无历史记录</div>';
-            logs.forEach(log => {
-                const logEntry = document.createElement('div');
-                logEntry.className = "border-l-2 border-slate-700 pl-2 py-1 bg-slate-900/20 mb-1";
-                logEntry.innerHTML = log;
-                logContainer.appendChild(logEntry); // 注意：这里为了保持顺序，新记录在存入数组时用 unshift
-            });
-        }
-
-        function setUser(name) {
-            currentUser = name;
-            document.getElementById('btn-WDP').classList.remove('user-active');
-            document.getElementById('btn-YAJ').classList.remove('user-active');
-            document.getElementById(`btn-${name}`).classList.add('user-active');
-
-            document.getElementById('control-panel').classList.remove('opacity-50', 'pointer-events-none');
-            document.getElementById('user-hint').innerText = `当前登录: ${name}`;
-            document.getElementById('user-hint').className = "text-xs text-sky-400 font-bold";
-            document.getElementById('logout-btn').classList.remove('hidden');
-        }
-
-        function logout() {
-            currentUser = null;
-            document.getElementById('btn-WDP').classList.remove('user-active');
-            document.getElementById('btn-YAJ').classList.remove('user-active');
-            document.getElementById('control-panel').classList.add('opacity-50', 'pointer-events-none');
-            document.getElementById('user-hint').innerText = "请选择操作员以解锁控制面板";
-            document.getElementById('user-hint').className = "text-xs text-orange-400 italic";
-            document.getElementById('logout-btn').classList.add('hidden');
-        }
-
-        function change(type, delta) {
-            if (!currentUser) return;
-            if (counts[type] === 0 && delta === -1) return;
-
-            counts[type] += delta;
-            
-            // 记录日志
-            const time = new Date().toLocaleTimeString();
-            const action = delta > 0 ? "增加" : "减少";
-            const icon = type === 'star' ? "⭐" : "💣";
-            const logHTML = `<span class="text-slate-500">[${time}]</span> <span class="text-sky-400">${currentUser}</span> ${action}${icon} | 库: ${counts[type]}`;
-            
-            logs.unshift(logHTML); // 新记录插到数组开头
-            if (logs.length > 50) logs.pop(); // 只保留最近50条
-
-            // 保存到本地存储
-            localStorage.setItem('edesign_counts', JSON.stringify(counts));
-            localStorage.setItem('edesign_logs', JSON.stringify(logs));
-
-            updateUI();
-            renderLogs();
-            // 注意：这里删除了之前版本中的 resetLock()，所以用户可以连续操作
+            document.getElementById('log-container').innerHTML = logs.join('');
         }
 
         function clearAll() {
-            if (confirm("确定要清空所有数据吗？此操作不可撤销。")) {
+            if (confirm("确定要彻底清空数据吗？")) {
                 localStorage.clear();
                 location.reload();
             }
